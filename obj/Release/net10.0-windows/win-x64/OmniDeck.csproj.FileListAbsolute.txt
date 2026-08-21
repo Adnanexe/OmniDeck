@@ -17,3 +17,4 @@ C:\Users\adnan\Desktop\OmniDeck\OmniDeck\obj\Release\net10.0-windows\win-x64\ref
 C:\Users\adnan\Desktop\OmniDeck\OmniDeck\obj\Release\net10.0-windows\win-x64\OmniDeck.pdb
 C:\Users\adnan\Desktop\OmniDeck\OmniDeck\obj\Release\net10.0-windows\win-x64\OmniDeck.genruntimeconfig.cache
 C:\Users\adnan\Desktop\OmniDeck\OmniDeck\obj\Release\net10.0-windows\win-x64\ref\OmniDeck.dll
+C:\Users\adnan\Desktop\OmniDeck\OmniDeck\obj\Release\net10.0-windows\win-x64\OmniDeck.sourcelink.json
