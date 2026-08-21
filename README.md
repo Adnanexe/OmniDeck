@@ -1,6 +1,13 @@
 # 🚀 OmniDeck Dashboard
 
-**OmniDeck** je moderan, lagan i sveobuhvatan sustav upravljanja za vaše Windows računalo. Dizajniran je s ciljem da gejmerima i power-userima omogući brzi pregled performansi sustava, pokretanje i organizaciju igara te brzu instalaciju najbitnijih aplikacija i alata — sve unutar jednog elegantnog i intuitivnog sučelja.
+**OmniDeck** je moderan, lagan i sveobuhvatan sustav upravljanja za vaše Windows računalo. Dizajniran je s ciljem da svima omogući brzi pregled performansi sustava, pokretanje i organizaciju igara te brzu instalaciju najbitnijih aplikacija i alata — sve unutar jednog elegantnog i intuitivnog sučelja.
+
+---
+
+
+**Kako pokrenuti:**
+1. Kliknite na **More info** (Više informacija).
+2. Kliknite na **Run anyway** (Svejedno pokreni).
 
 ---
 
@@ -35,6 +42,11 @@
 * **WPF (Windows Presentation Foundation)** — za moderan, tamni korisnički sučelje (Dark Theme).
 * **Windows Package Manager (`winget`)** — za pozadinsku instalaciju programa.
 * **System.Diagnostics (Performance Counters)** — za očitavanje sistemskih resursa.
+
+---
+
+### ⚠️ Napomena o Windows SmartScreen upozorenju
+Budući da je OmniDeck besplatan alat otvorenog koda (Open-Source) i nema komercijalni certifikat, Windows može prikazati plavo upozorenje pri prvom pokretanju.
 
 ---
 
