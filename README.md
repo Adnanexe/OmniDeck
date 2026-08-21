@@ -4,13 +4,6 @@
 
 ---
 
-
-**Kako pokrenuti:**
-1. Kliknite na **More info** (Više informacija).
-2. Kliknite na **Run anyway** (Svejedno pokreni).
-
----
-
 ## ✨ Ključne Značajke
 
 * **📊 Sustav za praćenje performansi (Hardware Monitor):**
@@ -44,9 +37,13 @@
 * **System.Diagnostics (Performance Counters)** — za očitavanje sistemskih resursa.
 
 ---
-
 ### ⚠️ Napomena o Windows SmartScreen upozorenju
 Budući da je OmniDeck besplatan alat otvorenog koda (Open-Source) i nema komercijalni certifikat, Windows može prikazati plavo upozorenje pri prvom pokretanju.
+
+**Kako pokrenuti:**
+1. Kliknite na **More info** (Više informacija).
+2. Kliknite na **Run anyway** (Svejedno pokreni).
+
 
 ---
 
