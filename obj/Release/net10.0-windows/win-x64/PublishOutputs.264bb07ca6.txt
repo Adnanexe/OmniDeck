@@ -1,0 +1,5 @@
+C:\Users\adnan\Desktop\Pc-hub\PCHub\bin\Release\net10.0-windows\win-x64\publish\PCHub.exe
+C:\Users\adnan\Desktop\Pc-hub\PCHub\bin\Release\net10.0-windows\win-x64\publish\PCHub.dll
+C:\Users\adnan\Desktop\Pc-hub\PCHub\bin\Release\net10.0-windows\win-x64\publish\PCHub.deps.json
+C:\Users\adnan\Desktop\Pc-hub\PCHub\bin\Release\net10.0-windows\win-x64\publish\PCHub.runtimeconfig.json
+C:\Users\adnan\Desktop\Pc-hub\PCHub\bin\Release\net10.0-windows\win-x64\publish\PCHub.pdb
