@@ -267,6 +267,31 @@ namespace OmniDeck
         private void WebRockstarLauncher_Click(object sender, RoutedEventArgs e) => OpenUrl("https://socialclub.rockstargames.com/rockstar-games-launcher");
 
         // --- TOOLS ---
+        private void OpenChrisutl_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string script = "irm christitus.com/win | iex";
+
+                ProcessStartInfo psi = new ProcessStartInfo
+
+                {
+                    FileName = "powershell.exe",
+                    Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{script}\"",
+                    UseShellExecute = true,
+                    Verb = "runas"
+                };
+                Process.Start(psi);
+            }
+            catch (System.ComponentModel.Win32Exception)
+            {
+                MessageBox.Show("Moras pokrenuiti kao administrator", "Upozorenje", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch
+            {
+                MessageBox.Show("Greška prilikom pokretanja Chris' Ultimate Tools.", "Greška", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
         private void OpenCalculator_Click(object sender, RoutedEventArgs e) => Process.Start(new ProcessStartInfo("calc.exe") { UseShellExecute = true });
         private void OpenNotepad_Click(object sender, RoutedEventArgs e) => Process.Start(new ProcessStartInfo("notepad.exe") { UseShellExecute = true });
         private void OpenTaskManager_Click(object sender, RoutedEventArgs e) => Process.Start(new ProcessStartInfo("taskmgr.exe") { UseShellExecute = true });
