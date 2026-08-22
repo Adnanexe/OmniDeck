@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("OmniDeck")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.1.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.1+dc8492d0fdf997bca3c5d4f0ff0997f3662efbf2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.1+1b0c759170f831e9da5a0232f00896c93a47708f")]
 [assembly: System.Reflection.AssemblyProductAttribute("OmniDeck")]
 [assembly: System.Reflection.AssemblyTitleAttribute("OmniDeck")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.1.0")]

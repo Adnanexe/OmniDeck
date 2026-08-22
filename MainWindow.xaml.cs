@@ -6,21 +6,37 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using LibreHardwareMonitor.Hardware;
 
 namespace OmniDeck
 {
     public partial class MainWindow : Window
     {
         private PerformanceCounter? cpuCounter;
-        private PerformanceCounter? gpuCounter;
+        private Computer _computer;
+
+        private PerformanceCounter? ramCounter;
+
+        private List<PerformanceCounter> gpuCounters = new List<PerformanceCounter>();
 
         public MainWindow()
         {
             InitializeComponent();
 
+            _computer = new Computer
+            {
+                IsGpuEnabled = true
+            };
+            _computer.Open();
+            DispatcherTimer timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromSeconds(1);
+            timer.Tick += UpdateDashboard;
+            timer.Start();
+
             try
             {
                 cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+                cpuCounter.NextValue();
             }
             catch
             {
@@ -29,76 +45,102 @@ namespace OmniDeck
 
             try
             {
-                PerformanceCounterCategory category = new PerformanceCounterCategory("GPU Engine");
-                string[] instanceNames = category.GetInstanceNames();
-                
-                foreach (string name in instanceNames)
-                {
-                    if (name.EndsWith("engtype_3D"))
-                    {
-                        gpuCounter = new PerformanceCounter("GPU Engine", "Utilization Percentage", name);
-                        break;
-                    }
-                }
+                ramCounter = new PerformanceCounter("Memory", "Available MBytes");
             }
             catch
             {
-                gpuCounter = null;
+                ramCounter = null;
             }
-
-            DispatcherTimer timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromSeconds(1);
-            timer.Tick += UpdateDashboard;
-            timer.Start();
 
             UpdateDashboard(null, null);
         }
 
-        private void UpdateDashboard(object? sender, EventArgs? e)
-        {
-            ClockText.Text = DateTime.Now.ToString("HH:mm:ss");
-            DateText.Text = DateTime.Now.ToString("dddd, d. MMMM yyyy.");
+// Uvozimo Windows API funkciju za čitanje ukupne sistemske memorije
+        [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+        [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+        private static extern bool GetPhysicallyInstalledSystemMemory(out long totalMemoryInKilobytes);
+    private void UpdateDashboard(object? sender, EventArgs? e)
+    {
+        ClockText.Text = DateTime.Now.ToString("HH:mm:ss");
+        DateText.Text = DateTime.Now.ToString("dddd, d. MMMM yyyy.");
 
-            if (cpuCounter != null)
+        // --- CPU LOGIKA ---
+        if (cpuCounter != null)
+        {
+            try
             {
                 int cpuVal = (int)cpuCounter.NextValue();
                 CpuText.Text = $"{cpuVal}%";
             }
-            else
+            catch
             {
-                CpuText.Text = "N/A";
+                CpuText.Text = "0%";
             }
+        }
+        else
+        {
+            CpuText.Text = "N/A";
+        }
 
-            var totalAvailableBytes = GC.GetGCMemoryInfo().TotalAvailableMemoryBytes;
-            var allocatedBytes = GC.GetTotalMemory(false);
-            if (totalAvailableBytes > 0)
+        // --- RAM LOGIKA ---
+        if (ramCounter != null)
+        {
+            try
             {
-                int ramVal = (int)((allocatedBytes * 100) / totalAvailableBytes);
-                RamText.Text = $"{ramVal}%";
+                float availableMB = ramCounter.NextValue(); // Slobodna memorija u MB
+                
+                if (GetPhysicallyInstalledSystemMemory(out long totalMemoryKB))
+                {
+                    float totalMB = totalMemoryKB / 1024f; // Ukupna memorija računala u MB
+                    float usedMB = totalMB - availableMB;
+                    int ramVal = (int)((usedMB / totalMB) * 100);
+
+                    // Spriječavamo negativne ili nelogične vrijednosti
+                    ramVal = Math.Clamp(ramVal, 0, 100);
+                    RamText.Text = $"{ramVal}%";
+                }
+                else
+                {
+                    RamText.Text = "N/A";
+                }
             }
-            else
+            catch
             {
                 RamText.Text = "N/A";
             }
+        }
+        else
+        {
+            RamText.Text = "N/A";
+        }
 
-            if (gpuCounter != null)
+        // --- GPU LOGIKA ---
+        float? gpuUsage = null;
+        
+        foreach (IHardware hardware in _computer.Hardware)
+        {
+            if (hardware.HardwareType == HardwareType.GpuNvidia || hardware.HardwareType == HardwareType.GpuAmd || hardware.HardwareType == HardwareType.GpuIntel)
             {
-                try
+                hardware.Update();
+                foreach (ISensor sensor in hardware.Sensors)
                 {
-                    int gpuVal = (int)gpuCounter.NextValue();
-                    GpuText.Text = $"{gpuVal}%";
+                    if (sensor.SensorType == SensorType.Load && sensor.Name.ToLower().Contains("gpu"))
+                    {
+                        gpuUsage = sensor.Value;
+                        break;
+                    }
                 }
-                catch
-                {
-                    GpuText.Text = "0%";
-                }
+            }
+        }
+        if (gpuUsage.HasValue)
+            {
+                GpuText.Text = $"{Math.Round(gpuUsage.Value)}%";
             }
             else
             {
                 GpuText.Text = "N/A";
             }
-        }
-
+    }
         // --- STEAM LOGIC ---
         private void OpenSteamTab_Click(object sender, RoutedEventArgs e)
         {
