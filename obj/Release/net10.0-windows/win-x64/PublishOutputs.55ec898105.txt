@@ -3,3 +3,13 @@ C:\Users\adnan\Desktop\OmniDeck\OmniDeck\bin\Release\net10.0-windows\win-x64\pub
 C:\Users\adnan\Desktop\OmniDeck\OmniDeck\bin\Release\net10.0-windows\win-x64\publish\OmniDeck.deps.json
 C:\Users\adnan\Desktop\OmniDeck\OmniDeck\bin\Release\net10.0-windows\win-x64\publish\OmniDeck.runtimeconfig.json
 C:\Users\adnan\Desktop\OmniDeck\OmniDeck\bin\Release\net10.0-windows\win-x64\publish\OmniDeck.pdb
+C:\Users\adnan\Desktop\OmniDeck\OmniDeck\bin\Release\net10.0-windows\win-x64\publish\BlackSharp.Core.dll
+C:\Users\adnan\Desktop\OmniDeck\OmniDeck\bin\Release\net10.0-windows\win-x64\publish\DiskInfoToolkit.dll
+C:\Users\adnan\Desktop\OmniDeck\OmniDeck\bin\Release\net10.0-windows\win-x64\publish\HidSharp.dll
+C:\Users\adnan\Desktop\OmniDeck\OmniDeck\bin\Release\net10.0-windows\win-x64\publish\LibreHardwareMonitorLib.dll
+C:\Users\adnan\Desktop\OmniDeck\OmniDeck\bin\Release\net10.0-windows\win-x64\publish\Mono.Posix.NETStandard.dll
+C:\Users\adnan\Desktop\OmniDeck\OmniDeck\bin\Release\net10.0-windows\win-x64\publish\RAMSPDToolkit-NDD.dll
+C:\Users\adnan\Desktop\OmniDeck\OmniDeck\bin\Release\net10.0-windows\win-x64\publish\System.IO.Ports.dll
+C:\Users\adnan\Desktop\OmniDeck\OmniDeck\bin\Release\net10.0-windows\win-x64\publish\System.Management.dll
+C:\Users\adnan\Desktop\OmniDeck\OmniDeck\bin\Release\net10.0-windows\win-x64\publish\MonoPosixHelper.dll
+C:\Users\adnan\Desktop\OmniDeck\OmniDeck\bin\Release\net10.0-windows\win-x64\publish\libMonoPosixHelper.dll
