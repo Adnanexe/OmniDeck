@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="OmniDeck" Height="650" Width="1000"
         Background="#0D0E12" WindowStartupLocation="CenterScreen"
-        FontFamily="Segoe UI">
+        FontFamily="Segoe UI"
+        Icon="logo.PNG">
 
     <Window.Resources>
         <!-- Stil za gumbe izbornika (Sidebar) -->
