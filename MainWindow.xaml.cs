@@ -13,36 +13,40 @@ namespace OmniDeck
     public partial class MainWindow : Window
     {
         private PerformanceCounter? cpuCounter;
-        private Computer _computer;
-
         private PerformanceCounter? ramCounter;
-
-        private List<PerformanceCounter> gpuCounters = new List<PerformanceCounter>();
+        private Computer? _computer;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            _computer = new Computer
+            // 1. Sigurna inicijalizacija LibreHardwareMonitora za GPU
+            try
             {
-                IsGpuEnabled = true
-            };
-            _computer.Open();
-            DispatcherTimer timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromSeconds(1);
-            timer.Tick += UpdateDashboard;
-            timer.Start();
+                _computer = new Computer
+                {
+                    IsGpuEnabled = true
+                };
+                _computer.Open();
+            }
+            catch
+            {
+                // Ako nema Admin prava ili drajver ne može startati, ne rušimo aplikaciju
+                _computer = null;
+            }
 
+            // 2. Inicijalizacija CPU brojača
             try
             {
                 cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
-                cpuCounter.NextValue();
+                cpuCounter.NextValue(); // Inicijalno očitanje
             }
             catch
             {
                 cpuCounter = null;
             }
 
+            // 3. Inicijalizacija RAM brojača
             try
             {
                 ramCounter = new PerformanceCounter("Memory", "Available MBytes");
@@ -52,95 +56,117 @@ namespace OmniDeck
                 ramCounter = null;
             }
 
+            // 4. Pokretanje Timera za osvježavanje ekrana svakih 1 Sekundu
+            DispatcherTimer timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromSeconds(1);
+            timer.Tick += UpdateDashboard;
+            timer.Start();
+
             UpdateDashboard(null, null);
         }
 
-// Uvozimo Windows API funkciju za čitanje ukupne sistemske memorije
+        // Importacija Windows API funkcije za očitavanje ukupne sistemske memorije (RAM)
         [System.Runtime.InteropServices.DllImport("kernel32.dll")]
         [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
         private static extern bool GetPhysicallyInstalledSystemMemory(out long totalMemoryInKilobytes);
-    private void UpdateDashboard(object? sender, EventArgs? e)
-    {
-        ClockText.Text = DateTime.Now.ToString("HH:mm:ss");
-        DateText.Text = DateTime.Now.ToString("dddd, d. MMMM yyyy.");
 
-        // --- CPU LOGIKA ---
-        if (cpuCounter != null)
+        private void UpdateDashboard(object? sender, EventArgs? e)
         {
-            try
-            {
-                int cpuVal = (int)cpuCounter.NextValue();
-                CpuText.Text = $"{cpuVal}%";
-            }
-            catch
-            {
-                CpuText.Text = "0%";
-            }
-        }
-        else
-        {
-            CpuText.Text = "N/A";
-        }
+            // Vrijeme i Datum
+            ClockText.Text = DateTime.Now.ToString("HH:mm:ss");
+            DateText.Text = DateTime.Now.ToString("dddd, d. MMMM yyyy.");
 
-        // --- RAM LOGIKA ---
-        if (ramCounter != null)
-        {
-            try
+            // --- CPU LOGIKA ---
+            if (cpuCounter != null)
             {
-                float availableMB = ramCounter.NextValue(); // Slobodna memorija u MB
-                
-                if (GetPhysicallyInstalledSystemMemory(out long totalMemoryKB))
+                try
                 {
-                    float totalMB = totalMemoryKB / 1024f; // Ukupna memorija računala u MB
-                    float usedMB = totalMB - availableMB;
-                    int ramVal = (int)((usedMB / totalMB) * 100);
-
-                    // Spriječavamo negativne ili nelogične vrijednosti
-                    ramVal = Math.Clamp(ramVal, 0, 100);
-                    RamText.Text = $"{ramVal}%";
+                    int cpuVal = (int)cpuCounter.NextValue();
+                    CpuText.Text = $"{cpuVal}%";
                 }
-                else
+                catch
+                {
+                    CpuText.Text = "0%";
+                }
+            }
+            else
+            {
+                CpuText.Text = "N/A";
+            }
+
+            // --- RAM LOGIKA ---
+            if (ramCounter != null)
+            {
+                try
+                {
+                    float availableMB = ramCounter.NextValue(); // Slobodna memorija u MB
+                    
+                    if (GetPhysicallyInstalledSystemMemory(out long totalMemoryKB) && totalMemoryKB > 0)
+                    {
+                        float totalMB = totalMemoryKB / 1024f; // Ukupna memorija u MB
+                        float usedMB = totalMB - availableMB;
+                        int ramVal = (int)((usedMB / totalMB) * 100);
+
+                        ramVal = Math.Clamp(ramVal, 0, 100);
+                        RamText.Text = $"{ramVal}%";
+                    }
+                    else
+                    {
+                        RamText.Text = "N/A";
+                    }
+                }
+                catch
                 {
                     RamText.Text = "N/A";
                 }
             }
-            catch
+            else
             {
                 RamText.Text = "N/A";
             }
-        }
-        else
-        {
-            RamText.Text = "N/A";
-        }
 
-        // --- GPU LOGIKA ---
-        float? gpuUsage = null;
-        
-        foreach (IHardware hardware in _computer.Hardware)
-        {
-            if (hardware.HardwareType == HardwareType.GpuNvidia || hardware.HardwareType == HardwareType.GpuAmd || hardware.HardwareType == HardwareType.GpuIntel)
+            // --- GPU LOGIKA ---
+            float? gpuUsage = null;
+
+            if (_computer != null)
             {
-                hardware.Update();
-                foreach (ISensor sensor in hardware.Sensors)
+                try
                 {
-                    if (sensor.SensorType == SensorType.Load && sensor.Name.ToLower().Contains("gpu"))
+                    foreach (IHardware hardware in _computer.Hardware)
                     {
-                        gpuUsage = sensor.Value;
-                        break;
+                        if (hardware.HardwareType == HardwareType.GpuNvidia || 
+                            hardware.HardwareType == HardwareType.GpuAmd || 
+                            hardware.HardwareType == HardwareType.GpuIntel)
+                        {
+                            hardware.Update();
+                            foreach (ISensor sensor in hardware.Sensors)
+                            {
+                                if (sensor.SensorType == SensorType.Load && sensor.Name.ToLower().Contains("gpu"))
+                                {
+                                    gpuUsage = sensor.Value;
+                                    break;
+                                }
+                            }
+                        }
                     }
+                }
+                catch { }
+            }
+
+            if (GpuText != null)
+            {
+
+                if (gpuUsage.HasValue)
+                {
+                    GpuText.Text = $"{Math.Round(gpuUsage.Value)}%";
+                }
+                else
+                {
+                    GpuText.Text = "N/A";
                 }
             }
         }
-        if (gpuUsage.HasValue)
-            {
-                GpuText.Text = $"{Math.Round(gpuUsage.Value)}%";
-            }
-            else
-            {
-                GpuText.Text = "N/A";
-            }
-    }
+
         // --- STEAM LOGIC ---
         private void OpenSteamTab_Click(object sender, RoutedEventArgs e)
         {
@@ -316,7 +342,6 @@ namespace OmniDeck
                 string script = "irm christitus.com/win | iex";
 
                 ProcessStartInfo psi = new ProcessStartInfo
-
                 {
                     FileName = "powershell.exe",
                     Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{script}\"",
@@ -327,13 +352,14 @@ namespace OmniDeck
             }
             catch (System.ComponentModel.Win32Exception)
             {
-                MessageBox.Show("Moras pokrenuiti kao administrator", "Upozorenje", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Moraš pokrenuti kao administrator", "Upozorenje", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch
             {
                 MessageBox.Show("Greška prilikom pokretanja Chris' Ultimate Tools.", "Greška", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
+
         private void OpenWin11Debloat_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -350,13 +376,14 @@ namespace OmniDeck
             }
             catch (System.ComponentModel.Win32Exception)
             {
-                MessageBox.Show("Moras pokrenuiti kao administrator", "Upozorenje", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Moraš pokrenuti kao administrator", "Upozorenje", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch
             {
                 MessageBox.Show("Greška prilikom pokretanja Win11Debloat.", "Greška", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
+
         private void OpenCalculator_Click(object sender, RoutedEventArgs e) => Process.Start(new ProcessStartInfo("calc.exe") { UseShellExecute = true });
         private void OpenNotepad_Click(object sender, RoutedEventArgs e) => Process.Start(new ProcessStartInfo("notepad.exe") { UseShellExecute = true });
         private void OpenTaskManager_Click(object sender, RoutedEventArgs e) => Process.Start(new ProcessStartInfo("taskmgr.exe") { UseShellExecute = true });
@@ -398,6 +425,18 @@ namespace OmniDeck
             {
                 MessageBox.Show($"Aplikacija nije pronađena na lokaciji:\n{path}", "Greška", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
+        }
+
+        // --- ZATVARANJE APLIKACIJE ---
+        protected override void OnClosed(EventArgs e)
+        {
+            try
+            {
+                _computer?.Close();
+            }
+            catch { }
+
+            base.OnClosed(e);
         }
     }
 }
