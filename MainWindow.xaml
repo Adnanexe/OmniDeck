@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="OmniDeck" Height="650" Width="1000"
         Background="#0D0E12" WindowStartupLocation="CenterScreen"
+        StateChanged="Window_StateChanged"
         FontFamily="Segoe UI"
         Icon="logo.PNG">
 
@@ -81,9 +82,104 @@
             <Setter Property="CornerRadius" Value="12"/>
             <Setter Property="BorderBrush" Value="#222533"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Padding" Value="14"/>
             <Setter Property="Margin" Value="8"/>
-            <Setter Property="Width" Value="280"/>
+            <Setter Property="Width" Value="230"/>
+        </Style>
+
+        <Style x:Key="DownloadScrollBar" TargetType="ScrollBar">
+            <Setter Property="Width" Value="10"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Grid Background="Transparent">
+                            <Track x:Name="PART_Track" IsDirectionReversed="true">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="{x:Static ScrollBar.LineUpCommand}" Opacity="0" IsTabStop="False"/>
+                                </Track.DecreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb>
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Border Background="#00F2FE" CornerRadius="5" Margin="1"/>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="{x:Static ScrollBar.LineDownCommand}" Opacity="0" IsTabStop="False"/>
+                                </Track.IncreaseRepeatButton>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="AppSelectBox" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="#00F2FE"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal">
+                            <Border x:Name="CheckBorder" Width="16" Height="16" CornerRadius="4" BorderBrush="#46505F" BorderThickness="1" Background="#11151C" Margin="0,0,8,0">
+                                <Path x:Name="CheckMark" Data="M 3,8 L 7,12 L 13,4" Stroke="#0D0E12" StrokeThickness="2" Visibility="Collapsed"/>
+                            </Border>
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="CheckBorder" Property="Background" Value="#00F2FE"/>
+                                <Setter TargetName="CheckBorder" Property="BorderBrush" Value="#00F2FE"/>
+                                <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="CheckBorder" Property="BorderBrush" Value="#38EF7D"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.35"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DownloadActionButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
+            <Setter Property="Width" Value="198"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Margin" Value="0,5,0,0"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <Style x:Key="DownloadPrimaryButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
+            <Setter Property="Background" Value="#00D5DF"/>
+            <Setter Property="Foreground" Value="#071014"/>
+            <Setter Property="Width" Value="190"/>
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="PrimaryBorder" Background="{TemplateBinding Background}" CornerRadius="8" BorderBrush="#5DFFFF" BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="PrimaryBorder" Property="Background" Value="#38EF7D"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="PrimaryBorder" Property="Background" Value="#00AAB7"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
 
@@ -125,6 +221,7 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
                             <Border Grid.Column="0" Background="#14161E" CornerRadius="14" Padding="20" Margin="0,0,8,0" BorderBrush="#222533" BorderThickness="1">
@@ -147,6 +244,13 @@
                                     <TextBlock x:Name="GpuText" Text="0%" Foreground="#FF5252" FontSize="32" FontWeight="Bold" Margin="0,10,0,0"/>
                                 </StackPanel>
                             </Border>
+
+                            <Border Grid.Column="3" Background="#14161E" CornerRadius="14" Padding="20" Margin="8,0,0,0" BorderBrush="#222533" BorderThickness="1">
+                                <StackPanel>
+                                    <TextBlock Text="DISK C:" Foreground="#6C7289" FontSize="11" FontWeight="Bold"/>
+                                    <TextBlock x:Name="DiskText" Text="N/A" Foreground="#FFC857" FontSize="32" FontWeight="Bold" Margin="0,10,0,0"/>
+                                </StackPanel>
+                            </Border>
                         </Grid>
 
                         <!-- BRZE AKCIJE -->
@@ -156,9 +260,12 @@
                                 <WrapPanel>
                                     <Button Content="Task Manager" Click="OpenTaskManager_Click" Style="{StaticResource ActionButton}"/>
                                     <Button Content="Kalkulator" Click="OpenCalculator_Click" Style="{StaticResource ActionButton}"/>
+                                    <Button Content="Notepad" Click="OpenNotepad_Click" Style="{StaticResource ActionButton}"/>
+                                    <Button Content="CMD Prompt" Click="OpenCMD_Click" Style="{StaticResource ActionButton}"/>
                                     <Button Content="Restart PC" Click="RestartPC_Click" Style="{StaticResource ActionButton}"/>
                                     <Button Content="Shutdown PC" Click="ShutdownPC_Click" Style="{StaticResource ActionButton}"/>
                                 </WrapPanel>
+                                <TextBlock x:Name="UptimeText" Text="Uptime: N/A" Foreground="#6C7289" FontSize="11" Margin="6,10,0,0"/>
                             </StackPanel>
                         </Border>
 
@@ -193,101 +300,217 @@
                 </ScrollViewer>
             </TabItem>
 
-            <!-- BOČNI TAB 3: DOWNLOAD APPS (NOVI TAB) -->
+            <!-- BOČNI TAB 3: DOWNLOAD APPS -->
             <TabItem Header="  Download Apps">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="10,0,0,0">
-                    <StackPanel Margin="10">
-                        <TextBlock Text="Instalacija Aplikacija" Foreground="White" FontSize="20" FontWeight="Bold" Margin="0,0,0,5"/>
-                        <TextBlock Text="Instaliraj popularne programe direktno na računalo ili otvori web stranicu." Foreground="#7E859B" FontSize="13" Margin="0,0,0,20"/>
+                    <ScrollViewer.Resources>
+                        <Style TargetType="ScrollBar" BasedOn="{StaticResource DownloadScrollBar}"/>
+                    </ScrollViewer.Resources>
+                    <StackPanel Margin="12,8,18,20">
+                        <Border Background="#121A20" BorderBrush="#243841" BorderThickness="1" CornerRadius="14" Padding="22,20" Margin="0,0,0,18">
+                            <StackPanel>
+                                <TextBlock Text="APP VAULT" Foreground="#38EF7D" FontSize="11" FontWeight="Bold"/>
+                                <TextBlock Text="Sve što ti treba, na jednom mjestu." Foreground="White" FontSize="25" FontWeight="Bold" TextWrapping="Wrap" Margin="0,6,0,4"/>
+                                <TextBlock Text="Odaberi aplikacije i instaliraj ih u jednom potezu." Foreground="#82919B" FontSize="13" TextWrapping="Wrap"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                                    <Button Content="Instaliraj odabrano" Click="InstallSelectedApps_Click" Style="{StaticResource DownloadPrimaryButton}"/>
+                                    <Button Content="Očisti" Click="ClearAppSelection_Click" Style="{StaticResource ActionButton}" Width="78" Height="42" Margin="0" FontSize="12"/>
+                                    <TextBlock x:Name="SelectedAppsText" Text="0 odabrano" Foreground="#00F2FE" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Margin="14,0,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
 
+                        <TextBlock Text="DOSTUPNE APLIKACIJE" Foreground="#71818C" FontSize="11" FontWeight="Bold" Margin="4,0,0,10"/>
                         <WrapPanel>
                             <!-- Discord -->
                             <Border Style="{StaticResource AppCardBorder}">
                                 <StackPanel>
-                                    <TextBlock Text="Discord" Foreground="White" FontSize="16" FontWeight="Bold"/>
-                                    <TextBlock Text="Komunikacija za gejmere i zajednice." Foreground="#7E859B" FontSize="12" TextWrapping="Wrap" Margin="0,5,0,15"/>
-                                    <Button Content="Instaliraj (Winget)" Click="InstallDiscord_Click" Style="{StaticResource ActionButton}" Width="240"/>
-                                    <Button Content="Otvori Stranicu" Click="WebDiscord_Click" Style="{StaticResource ActionButton}" Width="240" Margin="6,5,6,0"/>
+                                    <TextBlock Text="DISCORD" Foreground="#72808A" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock Text="Discord" Foreground="White" FontSize="18" FontWeight="Bold" Margin="0,3,0,8"/>
+                                    <CheckBox x:Name="DiscordSelection" Content="Dodaj u paket" Tag="Discord.Discord" Style="{StaticResource AppSelectBox}" Checked="AppSelection_Changed" Unchecked="AppSelection_Changed"/>
+                                    <TextBlock Text="Razgovor, zajednice i gaming." Foreground="#87939B" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,12"/>
+                                    <Button Content="Instaliraj" Click="InstallDiscord_Click" Style="{StaticResource DownloadActionButton}"/>
+                                    <Button Content="Web stranica" Click="WebDiscord_Click" Style="{StaticResource DownloadActionButton}"/>
                                 </StackPanel>
                             </Border>
 
                             <!-- Steam -->
                             <Border Style="{StaticResource AppCardBorder}">
                                 <StackPanel>
-                                    <TextBlock Text="Steam" Foreground="White" FontSize="16" FontWeight="Bold"/>
-                                    <TextBlock Text="Vodeća platforma za PC igre." Foreground="#7E859B" FontSize="12" TextWrapping="Wrap" Margin="0,5,0,15"/>
-                                    <Button Content="Instaliraj (Winget)" Click="InstallSteam_Click" Style="{StaticResource ActionButton}" Width="240"/>
-                                    <Button Content="Otvori Stranicu" Click="WebSteam_Click" Style="{StaticResource ActionButton}" Width="240" Margin="6,5,6,0"/>
+                                    <TextBlock Text="GAMES" Foreground="#72808A" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock Text="Steam" Foreground="White" FontSize="18" FontWeight="Bold" Margin="0,3,0,8"/>
+                                    <CheckBox x:Name="SteamSelection" Content="Dodaj u paket" Tag="Valve.Steam" Style="{StaticResource AppSelectBox}" Checked="AppSelection_Changed" Unchecked="AppSelection_Changed"/>
+                                    <TextBlock Text="Tvoja PC gaming biblioteka." Foreground="#87939B" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,12"/>
+                                    <Button Content="Instaliraj" Click="InstallSteam_Click" Style="{StaticResource DownloadActionButton}"/>
+                                    <Button Content="Web stranica" Click="WebSteam_Click" Style="{StaticResource DownloadActionButton}"/>
                                 </StackPanel>
                             </Border>
 
                             <!-- Google Chrome -->
                             <Border Style="{StaticResource AppCardBorder}">
                                 <StackPanel>
-                                    <TextBlock Text="Google Chrome" Foreground="White" FontSize="16" FontWeight="Bold"/>
-                                    <TextBlock Text="Popularni web preglednik." Foreground="#7E859B" FontSize="12" TextWrapping="Wrap" Margin="0,5,0,15"/>
-                                    <Button Content="Instaliraj (Winget)" Click="InstallChrome_Click" Style="{StaticResource ActionButton}" Width="240"/>
-                                    <Button Content="Otvori Stranicu" Click="WebChrome_Click" Style="{StaticResource ActionButton}" Width="240" Margin="6,5,6,0"/>
+                                    <TextBlock Text="BROWSER" Foreground="#72808A" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock Text="Google Chrome" Foreground="White" FontSize="18" FontWeight="Bold" Margin="0,3,0,8"/>
+                                    <CheckBox x:Name="ChromeSelection" Content="Dodaj u paket" Tag="Google.Chrome" Style="{StaticResource AppSelectBox}" Checked="AppSelection_Changed" Unchecked="AppSelection_Changed"/>
+                                    <TextBlock Text="Brz preglednik za svaki dan." Foreground="#87939B" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,12"/>
+                                    <Button Content="Instaliraj" Click="InstallChrome_Click" Style="{StaticResource DownloadActionButton}"/>
+                                    <Button Content="Web stranica" Click="WebChrome_Click" Style="{StaticResource DownloadActionButton}"/>
                                 </StackPanel>
                             </Border>
 
                             <!-- Brave Browser -->
                             <Border Style="{StaticResource AppCardBorder}">
                                 <StackPanel>
-                                    <TextBlock Text="Brave Browser" Foreground="White" FontSize="16" FontWeight="Bold"/>
-                                    <TextBlock Text="Brzi preglednik usmjeren na privatnost." Foreground="#7E859B" FontSize="12" TextWrapping="Wrap" Margin="0,5,0,15"/>
-                                    <Button Content="Instaliraj (Winget)" Click="InstallBrave_Click" Style="{StaticResource ActionButton}" Width="240"/>
-                                    <Button Content="Otvori Stranicu" Click="WebBrave_Click" Style="{StaticResource ActionButton}" Width="240" Margin="6,5,6,0"/>
+                                    <TextBlock Text="BROWSER" Foreground="#72808A" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock Text="Brave Browser" Foreground="White" FontSize="18" FontWeight="Bold" Margin="0,3,0,8"/>
+                                    <CheckBox x:Name="BraveSelection" Content="Dodaj u paket" Tag="Brave.Brave" Style="{StaticResource AppSelectBox}" Checked="AppSelection_Changed" Unchecked="AppSelection_Changed"/>
+                                    <TextBlock Text="Privatnost bez kompromisa." Foreground="#87939B" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,12"/>
+                                    <Button Content="Instaliraj" Click="InstallBrave_Click" Style="{StaticResource DownloadActionButton}"/>
+                                    <Button Content="Web stranica" Click="WebBrave_Click" Style="{StaticResource DownloadActionButton}"/>
                                 </StackPanel>
                             </Border>
 
                             <!-- Spotify -->
                             <Border Style="{StaticResource AppCardBorder}">
                                 <StackPanel>
-                                    <TextBlock Text="Spotify" Foreground="White" FontSize="16" FontWeight="Bold"/>
-                                    <TextBlock Text="Slušanje glazbe i podcasta." Foreground="#7E859B" FontSize="12" TextWrapping="Wrap" Margin="0,5,0,15"/>
-                                    <Button Content="Instaliraj (Winget)" Click="InstallSpotify_Click" Style="{StaticResource ActionButton}" Width="240"/>
-                                    <Button Content="Otvori Stranicu" Click="WebSpotify_Click" Style="{StaticResource ActionButton}" Width="240" Margin="6,5,6,0"/>
+                                    <TextBlock Text="AUDIO" Foreground="#72808A" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock Text="Spotify" Foreground="White" FontSize="18" FontWeight="Bold" Margin="0,3,0,8"/>
+                                    <CheckBox x:Name="SpotifySelection" Content="Dodaj u paket" Tag="Spotify.Spotify" Style="{StaticResource AppSelectBox}" Checked="AppSelection_Changed" Unchecked="AppSelection_Changed"/>
+                                    <TextBlock Text="Glazba i podcasti svaki dan." Foreground="#87939B" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,12"/>
+                                    <Button Content="Instaliraj" Click="InstallSpotify_Click" Style="{StaticResource DownloadActionButton}"/>
+                                    <Button Content="Web stranica" Click="WebSpotify_Click" Style="{StaticResource DownloadActionButton}"/>
                                 </StackPanel>
                             </Border>
 
                             <!-- Visual Studio Code -->
                             <Border Style="{StaticResource AppCardBorder}">
                                 <StackPanel>
-                                    <TextBlock Text="VS Code" Foreground="White" FontSize="16" FontWeight="Bold"/>
-                                    <TextBlock Text="Uređivač koda za programere." Foreground="#7E859B" FontSize="12" TextWrapping="Wrap" Margin="0,5,0,15"/>
-                                    <Button Content="Instaliraj (Winget)" Click="InstallVSCode_Click" Style="{StaticResource ActionButton}" Width="240"/>
-                                    <Button Content="Otvori Stranicu" Click="WebVSCode_Click" Style="{StaticResource ActionButton}" Width="240" Margin="6,5,6,0"/>
+                                    <TextBlock Text="DEVELOPMENT" Foreground="#72808A" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock Text="VS Code" Foreground="White" FontSize="18" FontWeight="Bold" Margin="0,3,0,8"/>
+                                    <CheckBox x:Name="VSCodeSelection" Content="Dodaj u paket" Tag="Microsoft.VisualStudioCode" Style="{StaticResource AppSelectBox}" Checked="AppSelection_Changed" Unchecked="AppSelection_Changed"/>
+                                    <TextBlock Text="Moćan editor za tvoj kod." Foreground="#87939B" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,12"/>
+                                    <Button Content="Instaliraj" Click="InstallVSCode_Click" Style="{StaticResource DownloadActionButton}"/>
+                                    <Button Content="Web stranica" Click="WebVSCode_Click" Style="{StaticResource DownloadActionButton}"/>
                                 </StackPanel>
                             </Border>
 
                             <!-- Zen Browser -->
                             <Border Style="{StaticResource AppCardBorder}">
                                 <StackPanel>
-                                    <TextBlock Text="Zen Browser" Foreground="White" FontSize="16" FontWeight="Bold"/>
-                                    <TextBlock Text="We care about your experience, not your data." Foreground="#7E859B" FontSize="12" TextWrapping="Wrap" Margin="0,5,0,15"/>
-                                    <Button Content="Instaliraj (Winget)" Click="InstallZenBrowser_Click" Style="{StaticResource ActionButton}" Width="240"/>
-                                    <Button Content="Otvori Stranicu" Click="WebZenBrowser_Click" Style="{StaticResource ActionButton}" Width="240" Margin="6,5,6,0"/>
+                                    <TextBlock Text="BROWSER" Foreground="#72808A" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock Text="Zen Browser" Foreground="White" FontSize="18" FontWeight="Bold" Margin="0,3,0,8"/>
+                                    <CheckBox x:Name="ZenSelection" Content="Dodaj u paket" Tag="Zen-Team.Zen-Browser" Style="{StaticResource AppSelectBox}" Checked="AppSelection_Changed" Unchecked="AppSelection_Changed"/>
+                                    <TextBlock Text="Mirnije i osobnije surfanje." Foreground="#87939B" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,12"/>
+                                    <Button Content="Instaliraj" Click="InstallZenBrowser_Click" Style="{StaticResource DownloadActionButton}"/>
+                                    <Button Content="Web stranica" Click="WebZenBrowser_Click" Style="{StaticResource DownloadActionButton}"/>
                                 </StackPanel>
                             </Border>
 
                             <!-- Riot Client -->
                             <Border Style="{StaticResource AppCardBorder}">
                                 <StackPanel>
-                                    <TextBlock Text="Riot Client" Foreground="White" FontSize="16" FontWeight="Bold"/>
-                                    <TextBlock Text="Nema link za download launchera" Foreground="#7E859B" FontSize="12" TextWrapping="Wrap" Margin="0,5,0,15"/>
-                                    <Button Content="Otvori Stranicu" Click="InstallRiotClient_Click" Style="{StaticResource ActionButton}" Width="240"/>
-                                    <Button Content="Otvori Stranicu" Click="WebRiotClient_Click" Style="{StaticResource ActionButton}" Width="240" Margin="6,5,6,0"/>
+                                    <TextBlock Text="GAMES" Foreground="#72808A" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock Text="Riot Client" Foreground="White" FontSize="18" FontWeight="Bold" Margin="0,3,0,8"/>
+                                    <CheckBox Content="Grupna instalacija nije dostupna" IsEnabled="False" Style="{StaticResource AppSelectBox}"/>
+                                    <TextBlock Text="Preuzimanje je dostupno na webu." Foreground="#87939B" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,12"/>
+                                    <Button Content="Web stranica" Click="InstallRiotClient_Click" Style="{StaticResource DownloadActionButton}"/>
+                                    <Button Content="Web stranica" Click="WebRiotClient_Click" Style="{StaticResource DownloadActionButton}"/>
                                 </StackPanel>
                             </Border>
 
                             <!-- Rockstar Games Launcher -->
                             <Border Style="{StaticResource AppCardBorder}">
                                 <StackPanel>
-                                    <TextBlock Text="Rockstar Games Launcher" Foreground="White" FontSize="16" FontWeight="Bold"/>
-                                    <TextBlock Text="Pokretač za Rockstar Games naslove." Foreground="#7E859B" FontSize="12" TextWrapping="Wrap" Margin="0,5,0,15"/>
-                                    <Button Content="Instaliraj (Winget)" Click="InstallRockstarLauncher_Click" Style="{StaticResource ActionButton}" Width="240"/>
-                                    <Button Content="Otvori Stranicu" Click="WebRockstarLauncher_Click" Style="{StaticResource ActionButton}" Width="240" Margin="6,5,6,0"/>
+                                    <TextBlock Text="GAMES" Foreground="#72808A" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock Text="Rockstar Launcher" Foreground="White" FontSize="18" FontWeight="Bold" Margin="0,3,0,8"/>
+                                    <CheckBox x:Name="RockstarSelection" Content="Dodaj u paket" Tag="RockstarGames.Launcher" Style="{StaticResource AppSelectBox}" Checked="AppSelection_Changed" Unchecked="AppSelection_Changed"/>
+                                    <TextBlock Text="Launcher za Rockstar naslove." Foreground="#87939B" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,12"/>
+                                    <Button Content="Instaliraj" Click="InstallRockstarLauncher_Click" Style="{StaticResource DownloadActionButton}"/>
+                                    <Button Content="Web stranica" Click="WebRockstarLauncher_Click" Style="{StaticResource DownloadActionButton}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Epic Games Launcher -->
+                            <Border Style="{StaticResource AppCardBorder}">
+                                <StackPanel>
+                                    <TextBlock Text="GAMES" Foreground="#72808A" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock Text="Epic Games" Foreground="White" FontSize="18" FontWeight="Bold" Margin="0,3,0,8"/>
+                                    <CheckBox x:Name="EpicSelection" Content="Dodaj u paket" Tag="EpicGames.EpicGamesLauncher" Style="{StaticResource AppSelectBox}" Checked="AppSelection_Changed" Unchecked="AppSelection_Changed"/>
+                                    <TextBlock Text="Store i launcher za PC igre." Foreground="#87939B" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,12"/>
+                                    <Button Content="Instaliraj" Click="InstallEpicLauncher_Click" Style="{StaticResource DownloadActionButton}"/>
+                                    <Button Content="Web stranica" Click="WebEpicLauncher_Click" Style="{StaticResource DownloadActionButton}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- 7-Zip -->
+                            <Border Style="{StaticResource AppCardBorder}">
+                                <StackPanel>
+                                    <TextBlock Text="UTILITY" Foreground="#72808A" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock Text="7-Zip" Foreground="White" FontSize="18" FontWeight="Bold" Margin="0,3,0,8"/>
+                                    <CheckBox x:Name="SevenZipSelection" Content="Dodaj u paket" Tag="7zip.7zip" Style="{StaticResource AppSelectBox}" Checked="AppSelection_Changed" Unchecked="AppSelection_Changed"/>
+                                    <TextBlock Text="Brzo raspakiravanje datoteka." Foreground="#87939B" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,12"/>
+                                    <Button Content="Instaliraj" Click="InstallSevenZip_Click" Style="{StaticResource DownloadActionButton}"/>
+                                    <Button Content="Web stranica" Click="WebSevenZip_Click" Style="{StaticResource DownloadActionButton}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- VLC -->
+                            <Border Style="{StaticResource AppCardBorder}">
+                                <StackPanel>
+                                    <TextBlock Text="MEDIA" Foreground="#72808A" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock Text="VLC Media Player" Foreground="White" FontSize="18" FontWeight="Bold" Margin="0,3,0,8"/>
+                                    <CheckBox x:Name="VlcSelection" Content="Dodaj u paket" Tag="VideoLAN.VLC" Style="{StaticResource AppSelectBox}" Checked="AppSelection_Changed" Unchecked="AppSelection_Changed"/>
+                                    <TextBlock Text="Pouzdan player za gotovo svaki format." Foreground="#87939B" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,12"/>
+                                    <Button Content="Instaliraj" Click="InstallVlc_Click" Style="{StaticResource DownloadActionButton}"/>
+                                    <Button Content="Web stranica" Click="WebVlc_Click" Style="{StaticResource DownloadActionButton}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Git -->
+                            <Border Style="{StaticResource AppCardBorder}">
+                                <StackPanel>
+                                    <TextBlock Text="DEVELOPMENT" Foreground="#72808A" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock Text="Git" Foreground="White" FontSize="18" FontWeight="Bold" Margin="0,3,0,8"/>
+                                    <CheckBox x:Name="GitSelection" Content="Dodaj u paket" Tag="Git.Git" Style="{StaticResource AppSelectBox}" Checked="AppSelection_Changed" Unchecked="AppSelection_Changed"/>
+                                    <TextBlock Text="Kontrola verzija za razvoj softvera." Foreground="#87939B" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,12"/>
+                                    <Button Content="Instaliraj" Click="InstallGit_Click" Style="{StaticResource DownloadActionButton}"/>
+                                    <Button Content="Web stranica" Click="WebGit_Click" Style="{StaticResource DownloadActionButton}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- OBS Studio -->
+                            <Border Style="{StaticResource AppCardBorder}">
+                                <StackPanel>
+                                    <TextBlock Text="CREATOR" Foreground="#72808A" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock Text="OBS Studio" Foreground="White" FontSize="18" FontWeight="Bold" Margin="0,3,0,8"/>
+                                    <CheckBox x:Name="ObsSelection" Content="Dodaj u paket" Tag="OBSProject.OBSStudio" Style="{StaticResource AppSelectBox}" Checked="AppSelection_Changed" Unchecked="AppSelection_Changed"/>
+                                    <TextBlock Text="Snimanje ekrana i live streaming." Foreground="#87939B" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,12"/>
+                                    <Button Content="Instaliraj" Click="InstallObs_Click" Style="{StaticResource DownloadActionButton}"/>
+                                    <Button Content="Web stranica" Click="WebObs_Click" Style="{StaticResource DownloadActionButton}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- PowerToys -->
+                            <Border Style="{StaticResource AppCardBorder}">
+                                <StackPanel>
+                                    <TextBlock Text="WINDOWS" Foreground="#72808A" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock Text="PowerToys" Foreground="White" FontSize="18" FontWeight="Bold" Margin="0,3,0,8"/>
+                                    <CheckBox x:Name="PowerToysSelection" Content="Dodaj u paket" Tag="Microsoft.PowerToys" Style="{StaticResource AppSelectBox}" Checked="AppSelection_Changed" Unchecked="AppSelection_Changed"/>
+                                    <TextBlock Text="Pametni alati za Windows." Foreground="#87939B" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,12"/>
+                                    <Button Content="Instaliraj" Click="InstallPowerToys_Click" Style="{StaticResource DownloadActionButton}"/>
+                                    <Button Content="Web stranica" Click="WebPowerToys_Click" Style="{StaticResource DownloadActionButton}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- WhatsApp -->
+                            <Border Style="{StaticResource AppCardBorder}">
+                                <StackPanel>
+                                    <TextBlock Text="MESSAGING" Foreground="#72808A" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock Text="WhatsApp" Foreground="White" FontSize="18" FontWeight="Bold" Margin="0,3,0,8"/>
+                                    <CheckBox x:Name="WhatsAppSelection" Content="Dodaj u paket" Tag="9NKSQGP7F2NH" Style="{StaticResource AppSelectBox}" Checked="AppSelection_Changed" Unchecked="AppSelection_Changed"/>
+                                    <TextBlock Text="Poruke i pozivi na računalu." Foreground="#87939B" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,12"/>
+                                    <Button Content="Instaliraj" Click="InstallWhatsApp_Click" Style="{StaticResource DownloadActionButton}"/>
+                                    <Button Content="Web stranica" Click="WebWhatsApp_Click" Style="{StaticResource DownloadActionButton}"/>
                                 </StackPanel>
                             </Border>
                         </WrapPanel>

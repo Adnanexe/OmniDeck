@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -75,6 +76,19 @@ namespace OmniDeck
             // Vrijeme i Datum
             ClockText.Text = DateTime.Now.ToString("HH:mm:ss");
             DateText.Text = DateTime.Now.ToString("dddd, d. MMMM yyyy.");
+            UptimeText.Text = $"Uptime: {FormatUptime(TimeSpan.FromMilliseconds(Environment.TickCount64))}";
+
+            try
+            {
+                DriveInfo systemDrive = new DriveInfo("C");
+                long usedBytes = systemDrive.TotalSize - systemDrive.AvailableFreeSpace;
+                int diskUsage = (int)Math.Clamp((double)usedBytes / systemDrive.TotalSize * 100, 0, 100);
+                DiskText.Text = $"{diskUsage}%";
+            }
+            catch
+            {
+                DiskText.Text = "N/A";
+            }
 
             // --- CPU LOGIKA ---
             if (cpuCounter != null)
@@ -165,6 +179,29 @@ namespace OmniDeck
                     GpuText.Text = "N/A";
                 }
             }
+        }
+
+        private static string FormatUptime(TimeSpan uptime)
+        {
+            if (uptime.TotalDays >= 1)
+            {
+                return $"{(int)uptime.TotalDays}d {uptime.Hours}h";
+            }
+
+            return $"{uptime.Hours}h {uptime.Minutes}m";
+        }
+
+        private void Window_StateChanged(object? sender, EventArgs e)
+        {
+            if (WindowState == WindowState.Minimized)
+            {
+                return;
+            }
+
+            ShowInTaskbar = true;
+            Visibility = Visibility.Visible;
+            Activate();
+            Focus();
         }
 
         // --- STEAM LOGIC ---
@@ -293,10 +330,123 @@ namespace OmniDeck
             }
         }
 
+        private void InstallSelectedApps_Click(object sender, RoutedEventArgs e)
+        {
+            CheckBox[] selections =
+            {
+                DiscordSelection,
+                SteamSelection,
+                ChromeSelection,
+                BraveSelection,
+                SpotifySelection,
+                VSCodeSelection,
+                ZenSelection,
+                RockstarSelection,
+                SevenZipSelection,
+                VlcSelection,
+                GitSelection,
+                ObsSelection,
+                PowerToysSelection,
+                WhatsAppSelection,
+                EpicSelection
+            };
+
+            List<string> packageIds = selections
+                .Where(selection => selection.IsChecked == true && selection.Tag is string)
+                .Select(selection => (string)selection.Tag)
+                .ToList();
+
+            if (packageIds.Count == 0)
+            {
+                MessageBox.Show("Odaberi barem jednu aplikaciju.", "Nema odabira", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            string installArguments = string.Join(" && ", packageIds.Select(packageId =>
+                $"winget install --id {packageId} -e --accept-package-agreements --accept-source-agreements"));
+
+            try
+            {
+                Process.Start(new ProcessStartInfo("cmd.exe", $"/c {installArguments}")
+                {
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Greška pri pokretanju grupne instalacije: {ex.Message}", "Greška", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ClearAppSelection_Click(object sender, RoutedEventArgs e)
+        {
+            DiscordSelection.IsChecked = false;
+            SteamSelection.IsChecked = false;
+            ChromeSelection.IsChecked = false;
+            BraveSelection.IsChecked = false;
+            SpotifySelection.IsChecked = false;
+            VSCodeSelection.IsChecked = false;
+            ZenSelection.IsChecked = false;
+            RockstarSelection.IsChecked = false;
+            SevenZipSelection.IsChecked = false;
+            VlcSelection.IsChecked = false;
+            GitSelection.IsChecked = false;
+            ObsSelection.IsChecked = false;
+            PowerToysSelection.IsChecked = false;
+            WhatsAppSelection.IsChecked = false;
+            EpicSelection.IsChecked = false;
+            UpdateSelectedAppsText();
+        }
+
+        private void AppSelection_Changed(object sender, RoutedEventArgs e)
+        {
+            UpdateSelectedAppsText();
+        }
+
+        private void UpdateSelectedAppsText()
+        {
+            CheckBox[] selections =
+            {
+                DiscordSelection,
+                SteamSelection,
+                ChromeSelection,
+                BraveSelection,
+                SpotifySelection,
+                VSCodeSelection,
+                ZenSelection,
+                RockstarSelection,
+                SevenZipSelection,
+                VlcSelection,
+                GitSelection,
+                ObsSelection,
+                PowerToysSelection,
+                WhatsAppSelection,
+                EpicSelection
+            };
+
+            int selectedCount = selections.Count(selection => selection.IsChecked == true);
+            SelectedAppsText.Text = $"{selectedCount} odabrano";
+        }
+
         private void OpenUrl(string url)
         {
             Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
         }
+
+        private void InstallSevenZip_Click(object sender, RoutedEventArgs e) => InstallApp("7zip.7zip");
+        private void WebSevenZip_Click(object sender, RoutedEventArgs e) => OpenUrl("https://www.7-zip.org/");
+        private void InstallVlc_Click(object sender, RoutedEventArgs e) => InstallApp("VideoLAN.VLC");
+        private void WebVlc_Click(object sender, RoutedEventArgs e) => OpenUrl("https://www.videolan.org/vlc/");
+        private void InstallGit_Click(object sender, RoutedEventArgs e) => InstallApp("Git.Git");
+        private void WebGit_Click(object sender, RoutedEventArgs e) => OpenUrl("https://git-scm.com/downloads");
+        private void InstallObs_Click(object sender, RoutedEventArgs e) => InstallApp("OBSProject.OBSStudio");
+        private void WebObs_Click(object sender, RoutedEventArgs e) => OpenUrl("https://obsproject.com/download");
+        private void InstallPowerToys_Click(object sender, RoutedEventArgs e) => InstallApp("Microsoft.PowerToys");
+        private void WebPowerToys_Click(object sender, RoutedEventArgs e) => OpenUrl("https://learn.microsoft.com/windows/powertoys/");
+        private void InstallWhatsApp_Click(object sender, RoutedEventArgs e) => InstallApp("9NKSQGP7F2NH");
+        private void WebWhatsApp_Click(object sender, RoutedEventArgs e) => OpenUrl("https://www.whatsapp.com/download");
+        private void InstallEpicLauncher_Click(object sender, RoutedEventArgs e) => InstallApp("EpicGames.EpicGamesLauncher");
+        private void WebEpicLauncher_Click(object sender, RoutedEventArgs e) => OpenUrl("https://store.epicgames.com/download");
 
         // Discord
         private void InstallDiscord_Click(object sender, RoutedEventArgs e) => InstallApp("Discord.Discord");
