@@ -256,7 +256,7 @@
                         <!-- BRZE AKCIJE -->
                         <Border Grid.Row="2" Background="#14161E" CornerRadius="14" Padding="20" Margin="0,0,10,0" BorderBrush="#222533" BorderThickness="1">
                             <StackPanel>
-                                <TextBlock Text="Brzi Alati i Kontrole" Foreground="White" FontSize="16" FontWeight="Bold" Margin="0,0,0,15"/>
+                                <TextBlock Text="Brzi Alati" Foreground="White" FontSize="16" FontWeight="Bold" Margin="0,0,0,15"/>
                                 <WrapPanel>
                                     <Button Content="Task Manager" Click="OpenTaskManager_Click" Style="{StaticResource ActionButton}"/>
                                     <Button Content="Kalkulator" Click="OpenCalculator_Click" Style="{StaticResource ActionButton}"/>
@@ -518,7 +518,95 @@
                 </ScrollViewer>
             </TabItem>
 
-            <!-- BOČNI TAB 4: TOOLS -->
+            <!-- BOČNI TAB 4: SYSTEM INFO -->
+            <TabItem Header="  System Info">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="10,0,0,0">
+                    <StackPanel Margin="10,10,20,20">
+                        <Border Background="#121A20" BorderBrush="#243841" BorderThickness="1" CornerRadius="14" Padding="22,20" Margin="0,0,0,18">
+                            <StackPanel>
+                                <TextBlock Text="SYSTEM INFORMATION" Foreground="#38EF7D" FontSize="11" FontWeight="Bold"/>
+                                <TextBlock Text="Detalji o vašem računalu." Foreground="White" FontSize="24" FontWeight="Bold" Margin="0,6,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Windows Version -->
+                            <Border Grid.Column="0" Grid.Row="0" Background="#14161E" BorderBrush="#222533" BorderThickness="1" CornerRadius="12" Padding="18" Margin="0,0,5,10">
+                                <StackPanel>
+                                    <TextBlock Text="WINDOWS" Foreground="#71818C" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock x:Name="OSVersionText" Text="Učitavanje..." Foreground="White" FontSize="14" FontWeight="Bold" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Processor -->
+                            <Border Grid.Column="1" Grid.Row="0" Background="#14161E" BorderBrush="#222533" BorderThickness="1" CornerRadius="12" Padding="18" Margin="5,0,0,10">
+                                <StackPanel>
+                                    <TextBlock Text="PROCESSOR" Foreground="#71818C" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock x:Name="ProcessorText" Text="Učitavanje..." Foreground="White" FontSize="14" FontWeight="Bold" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- RAM -->
+                            <Border Grid.Column="0" Grid.Row="1" Background="#14161E" BorderBrush="#222533" BorderThickness="1" CornerRadius="12" Padding="18" Margin="0,0,5,10">
+                                <StackPanel>
+                                    <TextBlock Text="RAM TOTAL" Foreground="#71818C" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock x:Name="RAMTotalText" Text="Učitavanje..." Foreground="#38EF7D" FontSize="16" FontWeight="Bold" Margin="0,8,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- GPU -->
+                            <Border Grid.Column="1" Grid.Row="1" Background="#14161E" BorderBrush="#222533" BorderThickness="1" CornerRadius="12" Padding="18" Margin="5,0,0,10">
+                                <StackPanel>
+                                    <TextBlock Text="GPU" Foreground="#71818C" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock x:Name="GPUText" Text="Učitavanje..." Foreground="White" FontSize="14" FontWeight="Bold" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Disk -->
+                            <Border Grid.Column="0" Grid.Row="2" Background="#14161E" BorderBrush="#222533" BorderThickness="1" CornerRadius="12" Padding="18" Margin="0,0,5,10">
+                                <StackPanel>
+                                    <TextBlock Text="DISK C: TOTAL" Foreground="#71818C" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock x:Name="DiskTotalText" Text="Učitavanje..." Foreground="#FFC857" FontSize="16" FontWeight="Bold" Margin="0,8,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Username -->
+                            <Border Grid.Column="1" Grid.Row="2" Background="#14161E" BorderBrush="#222533" BorderThickness="1" CornerRadius="12" Padding="18" Margin="5,0,0,10">
+                                <StackPanel>
+                                    <TextBlock Text="USER" Foreground="#71818C" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock x:Name="UsernameText" Text="Učitavanje..." Foreground="White" FontSize="16" FontWeight="Bold" Margin="0,8,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- IP Address -->
+                            <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" Background="#14161E" BorderBrush="#222533" BorderThickness="1" CornerRadius="12" Padding="18" Margin="0,0,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="IP ADDRESS" Foreground="#71818C" FontSize="10" FontWeight="Bold"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0" VerticalAlignment="Center">
+                                        <TextBlock x:Name="IPAddressText" Text="***.***.***.***.***" Foreground="#00F2FE" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        <Button x:Name="IPToggleButton" Content="👁️" Click="IPToggleButton_Click" 
+                                                Background="Transparent" Foreground="#00F2FE" BorderThickness="0" 
+                                                FontSize="14" Padding="8,0,0,0" Cursor="Hand"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- BOČNI TAB 5: TOOLS -->
             <TabItem Header="  Alati">
                 <Grid Margin="20">
                     <StackPanel>
@@ -535,7 +623,7 @@
                 </Grid>
             </TabItem>
 
-            <!-- BOČNI TAB 5: SETTINGS -->
+            <!-- BOČNI TAB 6: SETTINGS -->
             <TabItem Header="  Postavke">
                 <Grid Margin="20">
                     <StackPanel>

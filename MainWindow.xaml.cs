@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Management;
+using System.Net;
+using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -16,6 +19,8 @@ namespace OmniDeck
         private PerformanceCounter? cpuCounter;
         private PerformanceCounter? ramCounter;
         private Computer? _computer;
+        private string _actualIPAddress = "N/A";
+        private bool _ipAddressVisible = false;
 
         public MainWindow()
         {
@@ -64,6 +69,16 @@ namespace OmniDeck
             timer.Start();
 
             UpdateDashboard(null, null);
+            
+            // Učitaj SystemInfo podatke nakon što se UI inicijalizira
+            _ = LoadSystemInfoAsync();
+        }
+
+        private async Task LoadSystemInfoAsync()
+        {
+            // Pričekaj da se UI renderira
+            await Task.Delay(500);
+            LoadSystemInfo();
         }
 
         // Importacija Windows API funkcije za očitavanje ukupne sistemske memorije (RAM)
@@ -191,6 +206,144 @@ namespace OmniDeck
             return $"{uptime.Hours}h {uptime.Minutes}m";
         }
 
+        private void LoadSystemInfo()
+        {
+            try
+            {
+                string osVer = GetWindowsVersion() ?? "N/A";
+                OSVersionText.Text = osVer;
+            }
+            catch (Exception ex) { OSVersionText.Text = $"Error: {ex.GetType().Name}"; }
+
+            try
+            {
+                string proc = GetProcessorInfo() ?? "N/A";
+                ProcessorText.Text = proc;
+            }
+            catch (Exception ex) { ProcessorText.Text = $"Error: {ex.GetType().Name}"; }
+
+            try
+            {
+                string ram = GetTotalRAM() ?? "N/A";
+                RAMTotalText.Text = ram;
+            }
+            catch (Exception ex) { RAMTotalText.Text = $"Error: {ex.GetType().Name}"; }
+
+            try
+            {
+                string gpu = GetGPUInfo() ?? "N/A";
+                GPUText.Text = gpu;
+            }
+            catch (Exception ex) { GPUText.Text = $"Error: {ex.GetType().Name}"; }
+
+            try
+            {
+                string disk = GetDiskInfo() ?? "N/A";
+                DiskTotalText.Text = disk;
+            }
+            catch (Exception ex) { DiskTotalText.Text = $"Error: {ex.GetType().Name}"; }
+
+            try
+            {
+                string ip = GetIPAddress() ?? "N/A";
+                _actualIPAddress = ip;
+                _ipAddressVisible = false;
+                IPAddressText.Text = "***.***.***.***.***";
+            }
+            catch (Exception ex) { IPAddressText.Text = $"Error: {ex.GetType().Name}"; }
+
+            try
+            {
+                string user = Environment.UserName ?? "N/A";
+                UsernameText.Text = user;
+            }
+            catch (Exception ex) { UsernameText.Text = $"Error: {ex.GetType().Name}"; }
+        }
+
+        private string GetWindowsVersion()
+        {
+            try
+            {
+                // Environment.OSVersion dobro radi
+                var osVersion = Environment.OSVersion;
+                return osVersion.VersionString;
+            }
+            catch { }
+            return "N/A";
+        }
+
+        private string GetProcessorInfo()
+        {
+            try
+            {
+                return $"{Environment.ProcessorCount} Cores";
+            }
+            catch { }
+            return "N/A";
+        }
+
+        private string GetTotalRAM()
+        {
+            try
+            {
+                // Koristi GetPhysicallyInstalledSystemMemory API
+                if (GetPhysicallyInstalledSystemMemory(out long totalMemoryInKilobytes))
+                {
+                    long gb = totalMemoryInKilobytes / (1024 * 1024);
+                    return $"{gb} GB";
+                }
+            }
+            catch { }
+            return "N/A";
+        }
+
+        private string GetGPUInfo()
+        {
+            try
+            {
+                Computer computer = new Computer();
+                computer.IsCpuEnabled = false;
+                computer.IsGpuEnabled = true;
+                computer.Open();
+                
+                foreach (var hardware in computer.Hardware)
+                {
+                    if (hardware.HardwareType == HardwareType.GpuAmd || 
+                        hardware.HardwareType == HardwareType.GpuIntel || 
+                        hardware.HardwareType == HardwareType.GpuNvidia)
+                    {
+                        return hardware.Name;
+                    }
+                }
+            }
+            catch { }
+            return "N/A";
+        }
+
+        private string GetDiskInfo()
+        {
+            try
+            {
+                DriveInfo drive = new DriveInfo("C");
+                long totalGB = drive.TotalSize / (1024 * 1024 * 1024);
+                return $"{totalGB} GB";
+            }
+            catch { }
+            return "N/A";
+        }
+
+        private string GetIPAddress()
+        {
+            try
+            {
+                var hostEntry = Dns.GetHostEntry(Dns.GetHostName());
+                var ipv4 = hostEntry.AddressList.FirstOrDefault(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+                return ipv4?.ToString() ?? "N/A";
+            }
+            catch { }
+            return "N/A";
+        }
+
         private void Window_StateChanged(object? sender, EventArgs e)
         {
             if (WindowState == WindowState.Minimized)
@@ -202,6 +355,12 @@ namespace OmniDeck
             Visibility = Visibility.Visible;
             Activate();
             Focus();
+        }
+
+        private void IPToggleButton_Click(object sender, RoutedEventArgs e)
+        {
+            _ipAddressVisible = !_ipAddressVisible;
+            IPAddressText.Text = _ipAddressVisible ? _actualIPAddress : "***.***.***.***.***";
         }
 
         // --- STEAM LOGIC ---
