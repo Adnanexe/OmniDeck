@@ -747,5 +747,80 @@ namespace OmniDeck
 
             base.OnClosed(e);
         }
+    
+            // --- LOGIKA ZA DRAJVERE ---
+
+        // 1. NVIDIA App / Drivers (Otvara službenu stranicu za preuzimanje)
+        private void DownloadNvidiaDrivers_Click(object sender, RoutedEventArgs e)
+        {
+            OpenUrl("https://www.nvidia.com/Download/index.aspx");
+        }
+
+        // 2. AMD Auto-Detect (Otvara službenu AMD stranicu s alatom za detekciju)
+        private void DownloadAmdDrivers_Click(object sender, RoutedEventArgs e)
+        {
+            OpenUrl("https://www.amd.com/en/support/download/drivers.html");
+        }
+
+        // 3. Intel Driver & Support Assistant (Instalira alat putem winget-a)
+        private void InstallIntelAssistant_Click(object sender, RoutedEventArgs e)
+        {
+            InstallApp("Intel.DriverAndSupportAssistant");
+        }
+
+        // 4. Otvara Windows Update postavke izravno na dijelu za ažuriranje drajvera
+        private void OpenWindowsUpdateDrivers_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo("ms-settings:windowsupdate-action") { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Greška pri otvaranju Windows Updatea: {ex.Message}", "Greška", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        private void AutoInstallDrivers_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult result = MessageBox.Show(
+                "Ovaj proces će automatski potražiti i instalirati sve nedostajuće drajvere putem Windows Update-a.\n\nTo može potrajati nekoliko minuta. Želite li nastaviti?",
+                "Automatska instalacija drajvera",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Information
+            );
+
+            if (result != MessageBoxResult.Yes) return;
+
+            try
+            {
+                // PowerShell komanda koja instalira modul ako nedostaje i pokreće pretragu/instalaciju drajvera
+                string psScript = @"
+                    Set-ExecutionPolicy Bypass -Scope Process -Force;
+                    if (-not (Get-Module -ListAvailable -Name PSWindowsUpdate)) {
+                        Install-Module -Name PSWindowsUpdate -Force -SkipPublisherCheck -Scope CurrentUser;
+                    }
+                    Import-Module PSWindowsUpdate;
+                    Get-WindowsUpdate -AcceptAll -Install -AutoReboot:$false -UpdateType Driver;
+                ";
+
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = "powershell.exe",
+                    Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{psScript}\"",
+                    UseShellExecute = true,
+                    Verb = "runas" // Pokreće kao Administrator
+                };
+
+                Process.Start(psi);
+            }
+            catch (System.ComponentModel.Win32Exception)
+            {
+                MessageBox.Show("Za instalaciju drajvera potrebna su administratorska prava.", "Upozorenje", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Greška pri pokretanju skripte: {ex.Message}", "Greška", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 }

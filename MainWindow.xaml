@@ -619,6 +619,26 @@
                             <Button Content="Task Manager" Click="OpenTaskManager_Click" Style="{StaticResource ActionButton}"/>
                             <Button Content="CMD Prompt" Click="OpenCMD_Click" Style="{StaticResource ActionButton}"/>
                         </WrapPanel>
+                        <!-- DRIVERS SECTION -->
+                        <TextBlock Text="Upravljački programi (Drivers)" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,15,0,10"/>
+                        <WrapPanel>
+                            <!-- NVIDIA -->
+                            <Button Content="NVIDIA Drivers" Style="{StaticResource GameButton}" Click="DownloadNvidiaDrivers_Click" Width="180" Margin="5"/>
+                            
+                            <!-- AMD -->
+                            <Button Content="AMD Drivers" Style="{StaticResource GameButton}" Click="DownloadAmdDrivers_Click" Width="180" Margin="5"/>
+                            
+                            <!-- Intel -->
+                            <Button Content="Intel Driver Assistant" Style="{StaticResource GameButton}" Click="InstallIntelAssistant_Click" Width="180" Margin="5"/>
+                            
+                            <!-- Snappy Driver Installer Lite (Automatski alat) -->
+                            <Button Content="Windows Driver Update" Style="{StaticResource GameButton}" Click="OpenWindowsUpdateDrivers_Click" Width="180" Margin="5"/>
+                            <Button Content="Auto-Instaliraj Sve Drajvere" 
+                                    Style="{StaticResource GameButton}" 
+                                    Click="AutoInstallDrivers_Click" 
+                                    Width="220" 
+                                    Margin="5"/>
+                        </WrapPanel>
                     </StackPanel>
                 </Grid>
             </TabItem>
