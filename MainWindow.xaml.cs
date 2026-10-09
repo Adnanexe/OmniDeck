@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Management;
 using System.Net;
+using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -16,6 +17,7 @@ namespace OmniDeck
 {
     public partial class MainWindow : Window
     {
+        private static readonly HttpClient SpeedTestClient = new() { Timeout = TimeSpan.FromSeconds(45) };
         private PerformanceCounter? cpuCounter;
         private PerformanceCounter? ramCounter;
         private Computer? _computer;
@@ -198,6 +200,108 @@ namespace OmniDeck
             }
 
             return $"{uptime.Hours}h {uptime.Minutes}m";
+        }
+
+        private async void RunSpeedTest_Click(object sender, RoutedEventArgs e)
+        {
+            SpeedTestButton.IsEnabled = false;
+            SpeedTestPingText.Text = "…";
+            SpeedTestDownloadText.Text = "…";
+            SpeedTestUploadText.Text = "…";
+
+            try
+            {
+                SpeedTestStatusText.Text = "Mjerenje pinga...";
+                long? pingMs = await MeasurePingAsync();
+                SpeedTestPingText.Text = pingMs.HasValue ? $"{pingMs.Value} ms" : "N/A";
+
+                SpeedTestStatusText.Text = "Mjerenje preuzimanja...";
+                double downloadMbps = await MeasureDownloadMbpsAsync();
+                SpeedTestDownloadText.Text = $"{downloadMbps:0.0} Mbps";
+
+                SpeedTestStatusText.Text = "Mjerenje slanja...";
+                double uploadMbps = await MeasureUploadMbpsAsync();
+                SpeedTestUploadText.Text = $"{uploadMbps:0.0} Mbps";
+                SpeedTestStatusText.Text = pingMs.HasValue
+                    ? "Test je završen."
+                    : "Test je završen; ping nije dostupan.";
+            }
+            catch (Exception ex)
+            {
+                SpeedTestStatusText.Text = $"Test nije uspio: {ex.Message}";
+            }
+            finally
+            {
+                SpeedTestButton.IsEnabled = true;
+            }
+        }
+
+        private static async Task<long?> MeasurePingAsync()
+        {
+            using Ping ping = new();
+            List<long> samples = new();
+
+            try
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    PingReply reply = await ping.SendPingAsync("1.1.1.1", 1500);
+                    if (reply.Status == IPStatus.Success)
+                    {
+                        samples.Add(reply.RoundtripTime);
+                    }
+                }
+            }
+            catch (PingException)
+            {
+                return null;
+            }
+
+            return samples.Count == 0 ? null : samples.OrderBy(sample => sample).ElementAt(samples.Count / 2);
+        }
+
+        private static async Task<double> MeasureDownloadMbpsAsync()
+        {
+            const int bytesToDownload = 10_000_000;
+            using HttpRequestMessage request = new(
+                HttpMethod.Get,
+                $"https://speed.cloudflare.com/__down?bytes={bytesToDownload}");
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            using HttpResponseMessage response = await SpeedTestClient.SendAsync(
+                request,
+                HttpCompletionOption.ResponseHeadersRead);
+            response.EnsureSuccessStatusCode();
+
+            await using Stream stream = await response.Content.ReadAsStreamAsync();
+            byte[] buffer = new byte[64 * 1024];
+            long bytesRead = 0;
+            int read;
+            while ((read = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+            {
+                bytesRead += read;
+            }
+            stopwatch.Stop();
+
+            if (bytesRead == 0)
+            {
+                throw new InvalidDataException("Poslužitelj nije vratio podatke za preuzimanje.");
+            }
+
+            return bytesRead * 8d / Math.Max(stopwatch.Elapsed.TotalSeconds, 0.001) / 1_000_000;
+        }
+
+        private static async Task<double> MeasureUploadMbpsAsync()
+        {
+            const int bytesToUpload = 5_000_000;
+            using ByteArrayContent content = new(new byte[bytesToUpload]);
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            using HttpResponseMessage response = await SpeedTestClient.PostAsync(
+                "https://speed.cloudflare.com/__up",
+                content);
+            response.EnsureSuccessStatusCode();
+            stopwatch.Stop();
+
+            return bytesToUpload * 8d / Math.Max(stopwatch.Elapsed.TotalSeconds, 0.001) / 1_000_000;
         }
 
         private void LoadSystemInfo()
