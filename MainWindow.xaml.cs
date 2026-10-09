@@ -26,7 +26,6 @@ namespace OmniDeck
         {
             InitializeComponent();
 
-            // 1. Sigurna inicijalizacija LibreHardwareMonitora za GPU
             try
             {
                 _computer = new Computer
@@ -37,22 +36,20 @@ namespace OmniDeck
             }
             catch
             {
-                // Ako nema Admin prava ili drajver ne može startati, ne rušimo aplikaciju
                 _computer = null;
             }
 
-            // 2. Inicijalizacija CPU brojača
+            
             try
             {
                 cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
-                cpuCounter.NextValue(); // Inicijalno očitanje
+                cpuCounter.NextValue(); 
             }
             catch
             {
                 cpuCounter = null;
             }
 
-            // 3. Inicijalizacija RAM brojača
             try
             {
                 ramCounter = new PerformanceCounter("Memory", "Available MBytes");
@@ -62,7 +59,6 @@ namespace OmniDeck
                 ramCounter = null;
             }
 
-            // 4. Pokretanje Timera za osvježavanje ekrana svakih 1 Sekundu
             DispatcherTimer timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromSeconds(1);
             timer.Tick += UpdateDashboard;
@@ -70,8 +66,7 @@ namespace OmniDeck
 
             UpdateDashboard(null, null);
             
-            // Učitaj SystemInfo podatke nakon što se UI inicijalizira
-            _ = LoadSystemInfoAsync();
+            _ =LoadSystemInfoAsync();
         }
 
         private async Task LoadSystemInfoAsync()
@@ -81,7 +76,6 @@ namespace OmniDeck
             LoadSystemInfo();
         }
 
-        // Importacija Windows API funkcije za očitavanje ukupne sistemske memorije (RAM)
         [System.Runtime.InteropServices.DllImport("kernel32.dll")]
         [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
         private static extern bool GetPhysicallyInstalledSystemMemory(out long totalMemoryInKilobytes);
@@ -264,12 +258,16 @@ namespace OmniDeck
         {
             try
             {
-                // Environment.OSVersion dobro radi
-                var osVersion = Environment.OSVersion;
-                return osVersion.VersionString;
+                using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion");
+                if (key != null)
+                {
+                    string productName = key.GetValue("ProductName")?.ToString() ?? "N/A";
+                    string displayVersion = key.GetValue("DisplayVersion")?.ToString() ?? "";
+                    return $"{productName} {displayVersion}".Trim();
+                }
             }
             catch { }
-            return "N/A";
+            return Environment.OSVersion.VersionString;
         }
 
         private string GetProcessorInfo()
@@ -286,7 +284,6 @@ namespace OmniDeck
         {
             try
             {
-                // Koristi GetPhysicallyInstalledSystemMemory API
                 if (GetPhysicallyInstalledSystemMemory(out long totalMemoryInKilobytes))
                 {
                     long gb = totalMemoryInKilobytes / (1024 * 1024);
@@ -472,7 +469,7 @@ namespace OmniDeck
             }
         }
 
-        // --- DOWNLOAD APPS LOGIC (Winget & Web) ---
+        // --- DOWNLOAD APPS Tab ---
         private void InstallApp(string packageId)
         {
             try
@@ -750,7 +747,7 @@ namespace OmniDeck
     
             // --- LOGIKA ZA DRAJVERE ---
 
-        // 1. NVIDIA App / Drivers (Otvara službenu stranicu za preuzimanje)
+     
         private void DownloadNvidiaDrivers_Click(object sender, RoutedEventArgs e)
         {
             OpenUrl("https://www.nvidia.com/Download/index.aspx");
@@ -762,13 +759,10 @@ namespace OmniDeck
             OpenUrl("https://www.amd.com/en/support/download/drivers.html");
         }
 
-        // 3. Intel Driver & Support Assistant (Instalira alat putem winget-a)
         private void InstallIntelAssistant_Click(object sender, RoutedEventArgs e)
         {
             InstallApp("Intel.DriverAndSupportAssistant");
         }
-
-        // 4. Otvara Windows Update postavke izravno na dijelu za ažuriranje drajvera
         private void OpenWindowsUpdateDrivers_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -793,7 +787,6 @@ namespace OmniDeck
 
             try
             {
-                // PowerShell komanda koja instalira modul ako nedostaje i pokreće pretragu/instalaciju drajvera
                 string psScript = @"
                     Set-ExecutionPolicy Bypass -Scope Process -Force;
                     if (-not (Get-Module -ListAvailable -Name PSWindowsUpdate)) {
@@ -808,7 +801,7 @@ namespace OmniDeck
                     FileName = "powershell.exe",
                     Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{psScript}\"",
                     UseShellExecute = true,
-                    Verb = "runas" // Pokreće kao Administrator
+                    Verb = "runas" 
                 };
 
                 Process.Start(psi);
