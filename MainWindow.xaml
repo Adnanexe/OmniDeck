@@ -235,8 +235,8 @@
                                 </StackPanel>
                                 <StackPanel DockPanel.Dock="Bottom" Margin="8,16,8,6">
                                     <Border Height="1" Background="#242C39" Margin="0,0,0,14"/>
-                                    <TextBlock Text="OMNIDECK  •  v1.0.2" Foreground="#657184" FontSize="10"/>
-                                    <TextBlock Text="Made for your setup" Foreground="#465161" FontSize="10" Margin="0,4,0,0"/>
+                                    <TextBlock Text="OMNIDECK  •  v1.0.3" Foreground="#657184" FontSize="10"/>
+                                    <TextBlock Text="Made to make your life easier" Foreground="#465161" FontSize="10" Margin="0,4,0,0"/>
                                 </StackPanel>
                                 <ItemsPresenter/>
                             </DockPanel>
@@ -338,7 +338,43 @@
                                             <TextBlock Text="NETWORK" Foreground="#54EDF5" FontSize="10" FontWeight="Bold"/>
                                             <TextBlock Text="Brzina interneta" Foreground="White" FontSize="19" FontWeight="Bold" Margin="0,5,0,0"/>
                                         </StackPanel>
-                                        <Button x:Name="SpeedTestButton" Grid.Column="1" Content="Pokreni test" Click="RunSpeedTest_Click" Style="{StaticResource ActionButton}" Width="126" Height="38" Margin="0" FontSize="11"/>
+                                        <Button x:Name="SpeedTestButton" Grid.Column="1" Content="Pokreni test" Click="RunSpeedTest_Click" Style="{StaticResource ActionButton}" Width="126" Height="38" Margin="0" FontSize="11" ToolTipService.InitialShowDelay="0">
+                                            <Button.ToolTip>
+                                                <ToolTip Background="Transparent"
+                                                        BorderThickness="0"
+                                                        Padding="0"
+                                                        Placement="Mouse"
+                                                        HorizontalOffset="12"
+                                                        VerticalOffset="18">
+                                            <Border Width="310"
+                                                    Padding="15"
+                                                    Background="#151C27"
+                                                    BorderBrush="#31535F"
+                                                    BorderThickness="1"
+                                                    CornerRadius="12">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="4"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Background="#42E8F5" CornerRadius="2" Margin="0,2,0,2"/>
+                                                <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                                    <TextBlock Text="Test brzine interneta"
+                                                               Foreground="White"
+                                                               FontSize="13"
+                                                               FontWeight="SemiBold"/>
+                                                    <TextBlock Text="Ovo je malo kuhan sistem i download brzina ovisi do servera tu mozda bude neki 100-200 Mbps vise."
+                                                               Foreground="#AAB5C5"
+                                                               FontSize="12"
+                                                               TextWrapping="Wrap"
+                                                               LineHeight="18"
+                                                               Margin="0,5,0,0"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </ToolTip>
+                                </Button.ToolTip>
+                                </Button>
                                     </Grid>
                                     <TextBlock x:Name="SpeedTestStatusText" Text="Pokreni test za mjerenje veze." Foreground="#788497" FontSize="11" Margin="0,5,0,15"/>
                                     <Grid>
@@ -641,6 +677,18 @@
                                     <Button Content="Web stranica" Click="WebWhatsApp_Click" Style="{StaticResource DownloadActionButton}"/>
                                 </StackPanel>
                             </Border>
+
+                            <!-- WinRAR -->
+                            <Border Style="{StaticResource AppCardBorder}">
+                                <StackPanel>
+                                    <TextBlock Text="ARCHIVE" Foreground="#72808A" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock Text="WinRAR" Foreground="White" FontSize="18" FontWeight="Bold" Margin="0,3,0,8"/>
+                                    <CheckBox x:Name="WinrarSelection" Content="Dodaj u paket" Tag="RARLab.WinRAR" Style="{StaticResource AppSelectBox}" Checked="AppSelection_Changed" Unchecked="AppSelection_Changed"/>
+                                    <TextBlock Text="Komprimiraj i dekomprimiraj datoteke." Foreground="#87939B" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,12"/>
+                                    <Button Content="Instaliraj" Click="InstallWinrar_Click" Style="{StaticResource DownloadActionButton}"/>
+                                    <Button Content="Web stranica" Click="WebWinrar_Click" Style="{StaticResource DownloadActionButton}"/>
+                                </StackPanel>
+                            </Border>
                         </WrapPanel>
                     </StackPanel>
                 </ScrollViewer>
@@ -766,7 +814,45 @@
                                     Style="{StaticResource GameButton}" 
                                     Click="AutoInstallDrivers_Click" 
                                     Width="220" 
-                                    Margin="5"/>
+                                    Margin="5"
+                                    ToolTipService.InitialShowDelay="0">
+                                <Button.ToolTip>
+                                    <ToolTip Background="Transparent"
+                                             BorderThickness="0"
+                                             Padding="0"
+                                             Placement="Mouse"
+                                             HorizontalOffset="12"
+                                             VerticalOffset="18">
+                                        <Border Width="310"
+                                                Padding="15"
+                                                Background="#151C27"
+                                                BorderBrush="#31535F"
+                                                BorderThickness="1"
+                                                CornerRadius="12">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="4"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Background="#42E8F5" CornerRadius="2" Margin="0,2,0,2"/>
+                                                <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                                    <TextBlock Text="Mislim ja i na vas kojima je ovo komplicirano"
+                                                               Foreground="White"
+                                                               FontSize="13"
+                                                               FontWeight="SemiBold"/>
+                                                    <TextBlock Text="Svaki drajver koji ti je potreban za normalan zivot ce ti preuzeti samo(Nije bas garantirano za gaming drivere 50/50 je sansa ali mozda ja to naprvim ali njih mozes instalirati gore na button samo trebas znati koju graficku imas a to mozes vidjeti u Sustav) na tebi je samo da cekas i chillas dok ono to odradi mozda malo potraje ali to je sve oke i ako imas update za windows koji ne zelis nazalosti ce biti instaliran."
+                                                               Foreground="#AAB5C5"
+                                                               FontSize="12"
+                                                               TextWrapping="Wrap"
+                                                               LineHeight="18"
+                                                               Margin="0,5,0,0"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </ToolTip>
+                                </Button.ToolTip>
+                            </Button>
+
                         </WrapPanel>
                     </StackPanel>
                 </ScrollViewer>
@@ -778,16 +864,16 @@
                     <StackPanel Margin="24,22,24,24">
                         <TextBlock Text="PREFERENCES" Foreground="#54EDF5" FontSize="10" FontWeight="Bold"/>
                         <TextBlock Text="Postavke" Foreground="White" FontSize="27" FontWeight="Bold" Margin="0,6,0,4"/>
-                        <TextBlock Text="Prečaci i informacije za tvoj OmniDeck." Foreground="#8993A6" FontSize="13" Margin="0,0,0,20"/>
+                        <TextBlock Text="Postavke ce biti jednog dana." Foreground="#8993A6" FontSize="13" Margin="0,0,0,20"/>
                         <Border Background="#121720" BorderBrush="#252E3B" BorderThickness="1" CornerRadius="15" Padding="20" Margin="0,0,0,12">
                             <StackPanel>
                                 <TextBlock Text="WINDOWS" Foreground="#54EDF5" FontSize="10" FontWeight="Bold"/>
-                                <TextBlock Text="Otvori Windows postavke" Foreground="White" FontSize="16" FontWeight="Bold" Margin="0,6,0,4"/>
-                                <TextBlock Text="Upravljaj sistemskim postavkama računala." Foreground="#8993A6" FontSize="12" Margin="0,0,0,12"/>
+                                <TextBlock Text="Windows settings" Foreground="White" FontSize="16" FontWeight="Bold" Margin="0,6,0,4"/>
+                                <TextBlock Text="Obicne windows postavke (mozda i beskorisno)." Foreground="#8993A6" FontSize="12" Margin="0,0,0,12"/>
                                 <Button Content="Otvori postavke" Click="OpenSettings_Click" Style="{StaticResource ActionButton}" Width="180" HorizontalAlignment="Left" Margin="0"/>
                             </StackPanel>
                         </Border>
-                        <TextBlock Text="OmniDeck  •  v1.0.2" Foreground="#697589" FontSize="11" Margin="4,10,0,0"/>
+                        <TextBlock Text="OmniDeck  •  v1.0.3" Foreground="#697589" FontSize="11" Margin="4,10,0,0"/>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

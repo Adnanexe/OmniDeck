@@ -608,7 +608,8 @@ namespace OmniDeck
                 ObsSelection,
                 PowerToysSelection,
                 WhatsAppSelection,
-                EpicSelection
+                EpicSelection,
+                WinrarSelection
             };
 
             List<string> packageIds = selections
@@ -655,6 +656,7 @@ namespace OmniDeck
             PowerToysSelection.IsChecked = false;
             WhatsAppSelection.IsChecked = false;
             EpicSelection.IsChecked = false;
+            WinrarSelection.IsChecked = false;
             UpdateSelectedAppsText();
         }
 
@@ -681,7 +683,8 @@ namespace OmniDeck
                 ObsSelection,
                 PowerToysSelection,
                 WhatsAppSelection,
-                EpicSelection
+                EpicSelection,
+                WinrarSelection
             };
 
             int selectedCount = selections.Count(selection => selection.IsChecked == true);
@@ -744,6 +747,8 @@ namespace OmniDeck
         private void InstallRockstarLauncher_Click(object sender, RoutedEventArgs e) => InstallApp("RockstarGames.Launcher");
         private void WebRockstarLauncher_Click(object sender, RoutedEventArgs e) => OpenUrl("https://socialclub.rockstargames.com/rockstar-games-launcher");
 
+        private void InstallWinrar_Click(object sender, RoutedEventArgs e) => InstallApp("RARLab.WinRAR");
+        private void WebWinrar_Click(object sender, RoutedEventArgs e) => OpenUrl("https://www.win-rar.com/predownload.html");
         // --- TOOLS ---
         private void OpenChrisutl_Click(object sender, RoutedEventArgs e)
         {
