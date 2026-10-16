@@ -12,6 +12,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using LibreHardwareMonitor.Hardware;
+using AutoUpdater.Net;
 
 namespace OmniDeck
 {
@@ -23,10 +24,12 @@ namespace OmniDeck
         private Computer? _computer;
         private string _actualIPAddress = "N/A";
         private bool _ipAddressVisible = false;
+        
 
         public MainWindow()
         {
             InitializeComponent();
+            AutoUpdater.Start("https://raw.githubusercontent.com/OmniDeck/main/Updater.xml");
 
             try
             {
@@ -69,6 +72,7 @@ namespace OmniDeck
             UpdateDashboard(null, null);
             
             _ =LoadSystemInfoAsync();
+            
         }
 
         private async Task LoadSystemInfoAsync()
