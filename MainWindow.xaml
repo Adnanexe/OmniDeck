@@ -235,7 +235,7 @@
                                 </StackPanel>
                                 <StackPanel DockPanel.Dock="Bottom" Margin="8,16,8,6">
                                     <Border Height="1" Background="#242C39" Margin="0,0,0,14"/>
-                                    <TextBlock Text="OMNIDECK  •  v1.0.3" Foreground="#657184" FontSize="10"/>
+                                    <TextBlock Text="OMNIDECK  •  v1.0.4" Foreground="#657184" FontSize="10"/>
                                     <TextBlock Text="Made to make your life easier" Foreground="#465161" FontSize="10" Margin="0,4,0,0"/>
                                 </StackPanel>
                                 <ItemsPresenter/>
@@ -884,7 +884,7 @@
                                 <Button Content="Otvori postavke" Click="OpenSettings_Click" Style="{StaticResource ActionButton}" Width="180" HorizontalAlignment="Left" Margin="0"/>
                             </StackPanel>
                         </Border>
-                        <TextBlock Text="OmniDeck  •  v1.0.3" Foreground="#697589" FontSize="11" Margin="4,10,0,0"/>
+                        <TextBlock Text="OmniDeck  •  v1.0.4" Foreground="#697589" FontSize="11" Margin="4,10,0,0"/>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
