@@ -11,14 +11,16 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using System.Xml.Linq;
 using LibreHardwareMonitor.Hardware;
-using AutoUpdater.Net;
 
 namespace OmniDeck
 {
     public partial class MainWindow : Window
     {
+        private const string UpdaterXmlUrl = "https://raw.githubusercontent.com/Adnanexe/OmniDeck/main/Updater.xml";
         private static readonly HttpClient SpeedTestClient = new() { Timeout = TimeSpan.FromSeconds(45) };
+        private static readonly Version CurrentAppVersion = typeof(MainWindow).Assembly.GetName().Version ?? new Version(0, 0, 0);
         private PerformanceCounter? cpuCounter;
         private PerformanceCounter? ramCounter;
         private Computer? _computer;
@@ -29,7 +31,7 @@ namespace OmniDeck
         public MainWindow()
         {
             InitializeComponent();
-            AutoUpdater.Start("https://github.com/Adnanexe/OmniDeck/blob/main/Updater.xml");
+            _ = CheckForUpdatesAsync();
 
             try
             {
@@ -73,6 +75,74 @@ namespace OmniDeck
             
             _ =LoadSystemInfoAsync();
             
+        }
+
+        private async Task CheckForUpdatesAsync()
+        {
+            try
+            {
+                using HttpClient client = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+                string xmlContent = await client.GetStringAsync(UpdaterXmlUrl);
+                XDocument doc = XDocument.Parse(xmlContent);
+                XElement? item = doc.Element("item");
+                XElement? versionElement = item?.Element("version");
+                XElement? urlElement = item?.Element("url");
+
+                if (versionElement == null || urlElement == null)
+                    return;
+
+                if (!Version.TryParse(versionElement.Value.Trim(), out Version? remoteVersion) || remoteVersion == null)
+                    return;
+
+                if (remoteVersion <= CurrentAppVersion)
+                    return;
+
+                string updateUrl = urlElement.Value.Trim();
+
+                bool shouldInstall = true;
+                bool mandatory = false;
+                XElement? mandatoryElement = item?.Element("mandatory");
+                if (mandatoryElement != null && bool.TryParse(mandatoryElement.Value.Trim(), out bool parsedMandatory))
+                {
+                    mandatory = parsedMandatory;
+                }
+
+                if (!mandatory)
+                {
+                    shouldInstall = MessageBox.Show(
+                        $"Dostupna je nova verzija: {remoteVersion}.\nŽelite li je preuzeti i instalirati?",
+                        "Ažuriranje aplikacije",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Information) == MessageBoxResult.Yes;
+                }
+
+                if (!shouldInstall)
+                    return;
+
+                string tempFile = Path.Combine(Path.GetTempPath(), "OmniDeck-update.exe");
+                if (File.Exists(tempFile))
+                {
+                    File.Delete(tempFile);
+                }
+
+                using HttpResponseMessage response = await client.GetAsync(updateUrl);
+                response.EnsureSuccessStatusCode();
+
+                await using FileStream fileStream = new FileStream(tempFile, FileMode.Create, FileAccess.Write, FileShare.None);
+                await response.Content.CopyToAsync(fileStream);
+
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = tempFile,
+                    UseShellExecute = true
+                });
+
+                Dispatcher.Invoke(() => Application.Current.Shutdown());
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Update check failed: {ex.Message}");
+            }
         }
 
         private async Task LoadSystemInfoAsync()
