@@ -29,7 +29,7 @@ namespace OmniDeck
         public MainWindow()
         {
             InitializeComponent();
-            AutoUpdater.Start("https://raw.githubusercontent.com/OmniDeck/main/Updater.xml");
+            AutoUpdater.Start("https://github.com/Adnanexe/OmniDeck/blob/main/Updater.xml");
 
             try
             {
