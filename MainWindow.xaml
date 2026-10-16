@@ -678,6 +678,17 @@
                                 </StackPanel>
                             </Border>
 
+                            <Border Style="{StaticResource AppCardBorder}">
+                                <StackPanel>
+                                    <TextBlock Text="MESSAGING" Foreground="#72808A" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock Text="Telegram" Foreground="White" FontSize="18" FontWeight="Bold" Margin="0,3,0,8"/>
+                                    <CheckBox x:Name="TelegramSelection" Content="Dodaj u paket" Tag="Telegram.TelegramDesktop" Style="{StaticResource AppSelectBox}" Checked="AppSelection_Changed" Unchecked="AppSelection_Changed"/>
+                                    <TextBlock Text="Poruke i pozivi na računalu." Foreground="#87939B" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,12"/>
+                                    <Button Content="Instaliraj" Click="InstallTelegram_Click" Style="{StaticResource DownloadActionButton}"/>
+                                    <Button Content="Web stranica" Click="WebTelegram_Click" Style="{StaticResource DownloadActionButton}"/>
+                                </StackPanel>
+                            </Border>
+
                             <!-- WinRAR -->
                             <Border Style="{StaticResource AppCardBorder}">
                                 <StackPanel>

@@ -683,7 +683,8 @@ namespace OmniDeck
                 PowerToysSelection,
                 WhatsAppSelection,
                 EpicSelection,
-                WinrarSelection
+                WinrarSelection,
+                TelegramSelection
             };
 
             List<string> packageIds = selections
@@ -731,6 +732,7 @@ namespace OmniDeck
             WhatsAppSelection.IsChecked = false;
             EpicSelection.IsChecked = false;
             WinrarSelection.IsChecked = false;
+            TelegramSelection.IsChecked = false;
             UpdateSelectedAppsText();
         }
 
@@ -758,7 +760,8 @@ namespace OmniDeck
                 PowerToysSelection,
                 WhatsAppSelection,
                 EpicSelection,
-                WinrarSelection
+                WinrarSelection,
+                TelegramSelection
             };
 
             int selectedCount = selections.Count(selection => selection.IsChecked == true);
@@ -823,6 +826,8 @@ namespace OmniDeck
 
         private void InstallWinrar_Click(object sender, RoutedEventArgs e) => InstallApp("RARLab.WinRAR");
         private void WebWinrar_Click(object sender, RoutedEventArgs e) => OpenUrl("https://www.win-rar.com/predownload.html");
+        private void InstallTelegram_Click(object sender, RoutedEventArgs e) => InstallApp("Telegram.TelegramDesktop");
+        private void WebTelegram_Click(object sender, RoutedEventArgs e) => OpenUrl("https://desktop.telegram.org/");
         // --- TOOLS ---
         private void OpenChrisutl_Click(object sender, RoutedEventArgs e)
         {
